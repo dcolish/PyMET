@@ -29,7 +29,7 @@ else:
       stop_num += list([s])
 
 if not options.route_num:
-   print "The stop number is missing\n"
+   print "The route number is missing\n"
    parser.print_help()
    exit(-1)
 else:
