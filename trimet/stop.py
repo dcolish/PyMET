@@ -1,5 +1,3 @@
-import trimet
-
 class stop():
   "trimet stop object class"
 

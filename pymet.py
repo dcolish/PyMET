@@ -1,7 +1,5 @@
 #!/usr/local/bin/python2.5
 #quick little guy to tell me the next bus times
-import string
-import sys
 import time
 import urllib
 from optparse import OptionParser
@@ -75,3 +73,5 @@ def main():
 
 if __name__ == "__main__":
   main()
+
+
