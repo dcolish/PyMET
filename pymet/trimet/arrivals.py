@@ -1,3 +1,5 @@
+"""repsresentation of arrivals"""
+
 from base import Trimet
 
 
@@ -12,6 +14,6 @@ class Arrivals(Trimet):
 
 
 if __name__ == "__main__":
-    foo = Arrivals()
-    foo.load({'locIDs': [1927, 12963]})
-    print foo
+    AR = Arrivals()
+    AR.load({'locIDs': [1927, 12963]})
+    print AR
