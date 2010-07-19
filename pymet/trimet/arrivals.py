@@ -10,9 +10,9 @@ class Arrivals(Trimet):
                      u'arrival', 'blockPosition', u'trip', u'layover',
                      u'routeStatus']
 
-    def __init__(self):
-        self.command_name = u'arrival'
-        super(Trimet, self).__init__()
+    # def __init__(self):
+    #     self.command_name = u'arrivals'
+    #     super(Trimet, self).__init__()
 
     def __repr__(self):
         return str({'locations': foo.locations,
@@ -20,7 +20,7 @@ class Arrivals(Trimet):
 
 
 if __name__ == "__main__":
-    foo = Arrivals()
-    foo.fetch({'locIDs': 1927})
+    foo = Arrivals(u'arrivals')
+    foo.fetch({'locIDs': [1927]})
     pp = PrettyPrinter(indent=4)
     pp.pprint(foo)

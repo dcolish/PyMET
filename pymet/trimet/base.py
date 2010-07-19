@@ -19,20 +19,30 @@ class LazyApi(object):
                 items.append(value)
         return items
 
+    def urlize(self, iterarg):
+        # x must be a key
+        foo = []
+        for x, y in iterarg:
+            if isinstance(y, list):
+                y = ','.join(map(str, y))
+            foo.append('/'.join([x, str(y)]))
+        return '/'.join(foo)
+
 
 class Trimet(LazyApi):
     appID = "32208AFFFAA63FAEEBE5CB299"
-    base_url = "http://developer.trimet.org/ws/V1/"
+    base_url = "http://developer.trimet.org/ws/V1"
     arg_schema = []
     result_schema = []
     command_name = ''
-    _methods = ["route", "dir", "stop", "arrival", "detour"]
+    _methods = [u"route", u"dir", u"stop", u"arrivals", u"detour"]
 
-    def __init__(self):
+    def __init__(self, command_name=None):
         try:
+            self.command_name = command_name
             assert self.command_name in self._methods
         except Exception:
-            print "You must specify a command method from %s".format(
+            print "You must specify a command method from %s" % (
                 self._methods)
 
     def fetch(self, params):
@@ -43,9 +53,7 @@ class Trimet(LazyApi):
         arg_iter = chain([('', self.command_name)], params.items(),
                          [('appID', self.appID)])
 
-        formatted_params = '/'.join('/'.join([str(x), str(y)])
-                                    for x, y in arg_iter)
-
+        formatted_params = self.urlize(arg_iter)
         root = self.base_url + formatted_params
         resp = urlopen(root)
 

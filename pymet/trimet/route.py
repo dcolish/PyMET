@@ -21,6 +21,6 @@ class Route(Trimet):
 
 if __name__ == "__main__":
     foo = Route()
-    foo.fetch({'locIDs': 1927})
+    foo.fetch({'locIDs': [1927]})
     pp = PrettyPrinter(indent=4)
     pp.pprint(foo)
