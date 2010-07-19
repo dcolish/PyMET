@@ -32,14 +32,12 @@ class LazyApi(object):
 class Trimet(LazyApi):
     appID = "32208AFFFAA63FAEEBE5CB299"
     base_url = "http://developer.trimet.org/ws/V1"
-    arg_schema = []
-    result_schema = []
-    command_name = ''
     _methods = [u"route", u"dir", u"stop", u"arrivals", u"detour"]
+    command_name = ''
+    arg_schema = result_schema = []
 
-    def __init__(self, command_name=None):
+    def __init__(self):
         try:
-            self.command_name = command_name
             assert self.command_name in self._methods
         except Exception:
             print "You must specify a command method from %s" % (
