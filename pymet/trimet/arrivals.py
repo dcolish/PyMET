@@ -12,8 +12,15 @@ class Arrivals(Trimet):
                      u'trip', u'layover',
                      u'routeStatus']
 
+    def load(self, locations):
+        """takes a list of location ids"""
+        try:
+            assert isinstance(locations, list)
+            super(Arrivals, self).load({'locIDs': locations})
+        except AssertionError:
+            print "Locations must be a list"
 
 if __name__ == "__main__":
     AR = Arrivals()
-    AR.load({'locIDs': [1927, 12963]})
+    AR.load(locations=[1927, 12963])
     print AR

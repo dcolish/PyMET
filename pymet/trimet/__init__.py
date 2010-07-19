@@ -1,2 +1,6 @@
 """Module for Trimet api wrappers"""
-# __all__ = ["trimet", "route", "dir", "stop", "arrival", "detour"]
+
+from .base import Trimet
+from .arrivals import Arrivals
+
+__all__ = ["Trimet", "Arrivals"]
