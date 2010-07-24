@@ -1,6 +1,7 @@
 """
 Base classes for Trimet API
 """
+
 from itertools import chain
 from json import JSONEncoder
 from pprint import PrettyPrinter
@@ -14,9 +15,12 @@ def urlize(iterarg):
     """builds proper url from tuple/key,val argument iterator"""
     url = []
     for key, val in iterarg:
+        if val is None:
+            continue
         if isinstance(val, list):
             val = ','.join(str(it) for it in val)
-        url.append('/'.join([key, str(val)]))
+        val = "".join(str(val).split())
+        url.append('/'.join([key, val]))
     return '/'.join(url)
 
 
@@ -40,18 +44,19 @@ class LazyApi(object):
 
     @property
     def __dict__(self):
-        inflecter = engine()
-        return dict([(inflecter.plnoun(key), getattr(self, key))
-                     for key in self.result_schema])
+        return self._attrs
 
     def __getattr__(self, name):
         """once we have fetched an object we can check for attrs"""
         inflecter = engine()
         items = []
-        for attr in self._attrs:
-            key, value = attr.items().pop()
+        for attr in self._attrs.items():
+            key, value = attr
             if key == inflecter.sinoun(name) or key == name:
-                items.append(value)
+                if isinstance(value, list):
+                    items = value
+                else:
+                    items.append(value)
         return items
 
     def __str__(self):
@@ -67,11 +72,32 @@ class LazyApi(object):
         """convert resultset to a list of dictionaries of dictionaries"""
         try:
             assert self.result_schema
-            attrs = []
-            for item in results.resultset.childGenerator():
-                if item.name in self.result_schema:
-                    attrs.append({item.name: dict(item.attrs)})
+            attrs = {}
+
+            for item in results.childGenerator():
+                if item.findChildren():
+                    # If we've got siblings append otherwise update
+                    if (item.findNextSiblings(item.name) or
+                        item.findPreviousSiblings(item.name)):
+                        f = attrs.get(item.name, [])
+                        f.append(dict(item.attrs, **self.map_schema(item)))
+                        attrs.update({item.name: f})
+                    else:
+                        attrs.update({item.name:
+                                      dict(item.attrs,
+                                           **self.map_schema(item))})
+                else:
+                    if (item.findNextSiblings(item.name) or
+                        item.findPreviousSiblings(item.name)):
+                        f = attrs.get(item.name, [])
+                        f.append(dict(text_value=item.string,
+                                      **dict(item.attrs)))
+                        attrs.update({item.name: f})
+                    else:
+                        attrs.update({item.name: dict(text_value=item.string,
+                                                      **dict(item.attrs))})
             return attrs
+
         except AssertionError:
             print "Result schema does not match results"
             raise AssertionError
@@ -81,7 +107,8 @@ class Trimet(LazyApi):
     """Base class for building out specific method classes"""
     appID = "32208AFFFAA63FAEEBE5CB299"
     base_url = "http://developer.trimet.org/ws/V1"
-    _methods = [u"route", u"dir", u"stop", u"arrivals", u"detour"]
+    _methods = [u"route", u"trips/tripplanner", u"stop",
+                u"arrivals", u"detours"]
     command_name = ''
 
     def __init__(self):
@@ -104,5 +131,9 @@ class Trimet(LazyApi):
 
         formatted_params = urlize(arg_iter)
         root = self.base_url + formatted_params
+        print root
         results = fetch(root)
-        self._attrs = self.map_schema(results)
+        if results.resultset:
+            self._attrs = self.map_schema(results.resultset)
+        else:
+            self._attrs = self.map_schema(results.response)
