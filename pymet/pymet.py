@@ -1,7 +1,10 @@
+import gc
 import time
 import urllib
 from optparse import OptionParser
 from xml.etree import ElementTree as ET
+
+# gc.set_debug(gc.DEBUG_LEAK)
 
 
 def main():
@@ -25,7 +28,7 @@ def main():
     if not options.stop_num:
         print "The stop number is missing\n"
         parser.print_help()
-        exit(-1)
+        return -1
     else:
         for s in options.stop_num:
             stop_num += list([s])
@@ -33,7 +36,7 @@ def main():
             if not options.route_num:
                 print "The route number is missing\n"
                 parser.print_help()
-                exit(-1)
+                return -1
             else:
                 route_num = options.route_num
 
